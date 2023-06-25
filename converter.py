@@ -11,7 +11,10 @@ printer = PrettyPrinter() #позволяет сделать красивое о
 def get_currencies(): # выдает 
     endpoint = f"api/v7/currencies?apiKey={API_KEY}"
     url = BASIC_URL + endpoint
-    data = get(url).json() #так как json возвращает нам словарь, то к ключевоу слову results относится еще один словарь, его мы и вытаскиваем таким образом. Во втором словаре у нас ключ в виде валюты, и словарь с наименованием, сокращением и символом
+    data = get(url).json()['results'] #так как json возвращает нам словарь, то к ключевоу слову results относится еще один словарь, его мы и вытаскиваем таким образом. Во втором словаре у нас ключ в виде валюты, и словарь с наименованием, сокращением и символом
+    data = list(data.items())
+    data.sort()
+
     return data
 
 def print_currencies(currencies):
@@ -19,8 +22,7 @@ def print_currencies(currencies):
         name = currency['currencyName']
         _id = currency['id']
 
-        symbol = currency.get("currencySymbol", "") # применяем get(), так как символ это опциональный элемент словаря для каждой валюты
-        print(f"{_id} - {name} - {symbol}")
+        print(f"{_id} - {name}")
 
 def exchange_rate(currency1, currency2):
     endpoint = f"api/v7/convert?q={currency1}_{currency2}&compact=ultra&apiKey={API_KEY}"
@@ -38,7 +40,6 @@ def converter(currency1, currency2, amount):
 
 def main():
     currencies = get_currencies()
-
     print("welcome to the currency converter")
     print("you can get currencies, currency rate or convert one currency to another")
     
@@ -52,8 +53,8 @@ def main():
         if request == "get currencies":
             print_currencies(currencies)
         elif request == "get currency rate":
-            q1 = input("Enter a base currency ")
-            q2 = input("Enter a currency to convert to ")
+            q1 = input("Enter a base currency ").capitalize()
+            q2 = input("Enter a currency to convert to ").capitalize()
             print(exchange_rate(q1, q2))
         elif request == "convert currency":
             q1 = input("Enter a base currency ").capitalize()
